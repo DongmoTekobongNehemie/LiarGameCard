@@ -41,7 +41,8 @@ public class LiarGamePlay implements Playable {
 			i++;
 		}
 	}
-
+	
+	@Override
 	public void contradict(Player contestPlayer, Player player, Card currentCard, Pattern pattern,
 			List<Card> cardsPlayed) throws EmptyListOfCardsException {
 		if (player == null || players == null || currentCard == null || pattern == null || cardsPlayed == null) {

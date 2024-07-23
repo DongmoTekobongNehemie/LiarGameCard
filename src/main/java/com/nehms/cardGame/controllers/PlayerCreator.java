@@ -7,6 +7,5 @@ import java.util.List;
 public interface PlayerCreator {
 
     void create(List<Player> players) throws EmptyListOfCardsException;
-
-
+    
 }

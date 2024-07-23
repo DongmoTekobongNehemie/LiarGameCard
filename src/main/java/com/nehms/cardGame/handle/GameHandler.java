@@ -8,6 +8,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.nehms.cardGame.controllers.CommunicationSocket;
+import com.nehms.cardGame.controllers.Play;
 import com.nehms.cardGame.controllers.liardgame.LiarGamePlay;
 import com.nehms.cardGame.entities.Card;
 import com.nehms.cardGame.entities.GameState;
@@ -22,8 +24,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Getter
 @Setter
-public class GameHandler extends TextWebSocketHandler {
-
+public class GameHandler extends TextWebSocketHandler implements CommunicationSocket, Play {
+	
+	private boolean gameIsStillPlaying = false;
+	private List<Card> cardsPlayed = new ArrayList<>();
+	private Player currentPlayer = new Player(null);
+	private int i = 0;
+	private int currentIndex = 0;
+	private Card currentCard = new Card();
+	private Pattern currentPattern = null;
 	private List<WebSocketSession> sessions = new ArrayList<>();
 	private List<Player> players = new ArrayList<>();
 	private static int num = 1;
@@ -140,7 +149,8 @@ public class GameHandler extends TextWebSocketHandler {
 		return false;
 	}
 
-	private void broadcastMessage(String message) throws Exception {
+	@Override
+	public void broadcastMessage(String message) throws Exception {
 		for (WebSocketSession session : sessions) {
 			if (session.isOpen()) {
 				session.sendMessage(new TextMessage(message));
@@ -148,26 +158,14 @@ public class GameHandler extends TextWebSocketHandler {
 		}
 	}
 
+	@Override
 	public void adminSendMessage(String message) throws Exception {
 		log.info("Admin dit : {}", message);
 		broadcastMessage(ADMIN_NAME + ": " + message);
 	}
-
-	private boolean gameIsStillPlaying = false;
-
-	private List<Card> cardsPlayed = new ArrayList<>();
-
-	private Player currentPlayer = new Player(null);
-
-	private int i = 0;
-
-	private int currentIndex = 0;
-
-	private Card currentCard = new Card();
-
-	private Pattern currentPattern = null;
-
-	private void letPlay(String player, TextMessage message) throws Exception {
+	
+	@Override
+	public void letPlay(String player, TextMessage message) throws Exception {
 		if (infos.isEmpty()) {
 			log.error("La liste des infos est vide. Impossible de jouer.");
 			return;
@@ -212,9 +210,11 @@ public class GameHandler extends TextWebSocketHandler {
 
 				currentPattern = valuePattern;
 				gamePlay.playOneCard(valueNumber, players.get(currentIndex), cardsPlayed, currentCard, valuePattern);
-
+				
 				currentPattern = valuePattern;
-
+				
+				adminSendMessageToPlayer(currentContradictPlayer);
+				
 				for (Card card : players.get(currentIndex).getHand()) {
 					System.out.println(card + "\n");
 				}
@@ -286,6 +286,9 @@ public class GameHandler extends TextWebSocketHandler {
 
 					gamePlay.contradict(players.get(currentContestIndex), players.get(currentIndex), currentCard,
 							currentPattern, cardsPlayed);
+					
+					adminSendMessageToPlayer(currentContradictPlayer);
+					adminSendMessageToPlayer(currentPlayer);
 					contradictok = true;
 				}
 				checkGamestate = GameState.PLAY_CARD; // Mettre à jour l'état du jeu
@@ -296,4 +299,42 @@ public class GameHandler extends TextWebSocketHandler {
 			}
 		}
 	}
+
+	public String onePlayerCards(Player player) {
+		StringBuilder cardsDisplay = new StringBuilder();
+		for (Card card : player.getHand()) {
+			cardsDisplay.append("+---------+\n");
+			cardsDisplay.append("| ").append(String.format("%-2s", card.getNumber())).append("      |\n");
+			cardsDisplay.append("|         |\n");
+			cardsDisplay.append("|    ").append(String.format("%-2s", card.getPattern())).append("    |\n");
+			cardsDisplay.append("|         |\n");
+			cardsDisplay.append("|      ").append(String.format("%2s", card.getNumber())).append(" |\n");
+			cardsDisplay.append("+---------+\n");
+			cardsDisplay.append("\n");
+		}
+		return cardsDisplay.toString();
+	}
+	
+	private WebSocketSession findSessionByPlayer(Player player) {
+	    for (WebSocketSession session : sessions) {
+	        String personName = (String) session.getAttributes().get(PLAYER_NAME_KEY);
+	        if (personName != null && personName.equals(player.getNamePlayer())) {
+	            return session;
+	        }
+	    }
+	    return null;
+	}
+
+	@Override
+	public void adminSendMessageToPlayer(Player player) throws Exception {
+	    WebSocketSession session = findSessionByPlayer(player);
+	    if (session != null && session.isOpen()) {
+	        String message = onePlayerCards(player);
+	        session.sendMessage(new TextMessage(ADMIN_NAME + ": voici l'etat de vos carte " + message));
+	    } else {
+	        log.warn("Session non trouvée ou fermée pour le joueur : {}", player.getNamePlayer());
+	    }
+	}
+	
+
 }
