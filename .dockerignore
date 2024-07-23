@@ -1,5 +1,0 @@
-#ignore ALL
-*
-
-#Keep
-!target/*.jar

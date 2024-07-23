@@ -10,21 +10,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Card {
-	
+
 	private Pattern pattern;
 	private String number;
 
 	@Override
-	public final boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Card card)) return false;
-        return pattern == card.pattern && Objects.equals(number, card.number);
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Card other = (Card) obj;
+		return Objects.equals(number, other.number) && pattern == other.pattern;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hashCode(pattern);
-		result = 31 * result + Objects.hashCode(number);
-		return result;
+		return Objects.hash(number, pattern);
 	}
+
 }
