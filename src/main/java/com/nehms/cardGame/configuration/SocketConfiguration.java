@@ -7,7 +7,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import com.nehms.cardGame.handle.GameHandler;
+import com.nehms.cardGame.handle.Communication;
 
 @Configuration
 @EnableWebSocket
@@ -20,7 +20,7 @@ public class SocketConfiguration implements WebSocketConfigurer {
  
 	@Bean
 	WebSocketHandler PlayerHandler() {
-		return new GameHandler();
+		return new Communication();
 	}
 
 }

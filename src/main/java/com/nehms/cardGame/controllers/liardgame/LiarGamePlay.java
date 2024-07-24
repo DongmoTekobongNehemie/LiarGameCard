@@ -1,27 +1,26 @@
 package com.nehms.cardGame.controllers.liardgame;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.ArrayList;
+
 import com.nehms.cardGame.controllers.Configurer;
 import com.nehms.cardGame.controllers.Playable;
 import com.nehms.cardGame.entities.Card;
 import com.nehms.cardGame.entities.Pattern;
 import com.nehms.cardGame.entities.Player;
 import com.nehms.cardGame.exceptions.EmptyListOfCardsException;
-import com.nehms.cardGame.handle.GameHandler;
 
 public class LiarGamePlay implements Playable {
 
 	private static final Logger log = Logger.getLogger(LiarGamePlay.class.getName());
 	List<Player> players;
-	private GameHandler gameHandler;
 
-	public LiarGamePlay(List<Card> cards, List<Player> players, GameHandler gameHandler) {
+	public LiarGamePlay(List<Card> cards, List<Player> players) {
 		this.players = players;
-		this.gameHandler = gameHandler;
 	}
+
 
 	@Override
 	public void playOneCard(int number, Player joueur, List<Card> cardsPlayed, Card currentCard, Pattern avis) {
