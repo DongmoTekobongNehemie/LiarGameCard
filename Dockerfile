@@ -8,6 +8,6 @@ RUN mvn clean package -Dmaven.test.skip=true
 FROM eclipse-temurin:21.0.3_9-jdk
 WORKDIR /app
 
-COPY --from=build /app/target/LiarCardGame-0.0.1-SNAPSHOT.jar ./LiarCardGame.jar
+COPY --from=build /app/target/Game-0.0.1-SNAPSHOT.jar ./Game.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "LiarCardGame.jar"]

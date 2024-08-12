@@ -34,7 +34,7 @@ public class Communication extends TextWebSocketHandler {
 	private LiarGamePlay gamePlay = new LiarGamePlay(cards, players);
 	private boolean gameCanStart = false;
 	private GameState checkGamestate = GameState.PLAY_CARD;
-
+	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		if (players.size() - 1 >= MAX_PLAYERS) {

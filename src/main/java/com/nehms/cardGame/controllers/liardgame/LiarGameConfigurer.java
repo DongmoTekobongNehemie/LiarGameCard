@@ -21,7 +21,6 @@ public class LiarGameConfigurer implements Configurer {
             cards.add(new Card(Pattern.COEUR, numberCard));
             cards.add(new Card(Pattern.PIQUE, numberCard));
         }
-
     }
 
     @Override
